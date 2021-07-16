@@ -1,0 +1,6 @@
+numpy
+matplotlib
+casadi
+pygsheets
+ipython
+notebook

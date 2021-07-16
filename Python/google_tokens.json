@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "matlabocp",
+  "private_key_id": "70b419a5fd683a5e0e0269650f91d278647070f9",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCYPy008aeqRsdl\nY3u5uNt7WhoJnGIGhT3P/DHm2pZ5z9rZ9aGh20cGZJkeHOksPqoOrmWP30yBRBR1\nShNf2yyNwtLsZGxgQB8Aa3pemBIeuaJEg7K5pADIvlruXb1y8NmaB6t80tftO6db\n0/Ygble5YrKScFiIWc57uLEtYpUzek4PqSvao8ioc5bAWAT+gZIOpiFRMmd6+ubY\nlonlVmn5WNFXVO9HYM1bCXdTIumeydNEvkgTAAoyBZTnznawwx5iOTIkEpbbialB\nICVhzenkyrBAxa6oTtBi5NYMG7I7R+HdjOep+CByhnEPruRtvaEwCDjPJmdyGjil\nDQqzeDrVAgMBAAECggEANoIoBVSf2u8MZNiBa7Urn7ZarCY5UmxR/S0mEKkiRuqM\nSI0RGYoQm9FYoNdpBFZLPIZkBmbEVWOyj2u+FAu8n+So78nko3FRqCzS2xtHIYkE\n99LPInf9b+H3XHBja8ufnO4yD7bNaDp7aP0ymdnnvo//rz5Z9DdzHgi6Jq2tDYin\nA7tu4Auv/1h51UWyi9sxO749IcxXhsEnCGC2Xmp4MA6JJW9CIK3Pvl050APa1oxQ\nA+D04MGWJzwcB+hEojMPQ/7LV7PU1d5Ehu98mbeo3eGTf0ECmInjRQ+jNcqloKBL\ngENRern1zJ36P46dsghC4H6d1gfi0F71lR/6qVdw4QKBgQDM1pU9kk3z91/ysRe+\nnthFQ8GrB8Hk08rtT/obfHcjSGDwgV2myf8LgyB3Qvui1XdjiTb+XRw1GGU+/F4V\n+EfzZ9Jl1u+N7ee5hObJXlcvzUaC1olUMDqDEst8k/8zSyMPTrTtBZwWMwVvQA9R\nmEh2YcU82MydRLE+9LKa+4n0nwKBgQC+ReG2/qQJHZBa2p/wS8kaRHugRPjU1uxx\nLnNsEAJhBeiA3m2OUQr+Xzs39D+Y5KaXtLW2y42Fk59tWtodZhbzkF/SmiEQrYiC\n1kcci8C246TOWumAgeSxAEp8lbk32rHp2zqW5jhsSDDk3C6/QOzHNT0njYyUO+Ev\nlcI3wYJICwKBgQCWrDUlEExU657hNxDfP5qYAIoh01f1iTDYtR6lPz2nb2MXJiGM\nQUNg5XhpIZVVpq3mQpV4L2dDSwmWdi6C/Jl4WuMx1BNsFBaCqVbVwpZhbB60uThU\n/BDeP2H85iQvR9KnPN7rBlhVH/ycY8Og4mJS6gIaiuKfwFqck4QZanOEwwKBgCF4\nGWQfFqujz6irnEagjhdYxIZEm6CUzbJ7AUKY7lIyv9srRQorp0tnZPtKs4Upc0Rs\nPSqSU6qTdQ+/U26obpEZbEGXawmL/N9G4etbieKh2HOT+k7oilm4O2H+1D3G8lS4\ng23XwUUKzc70DCUIPp4r9z3l4DyS6+F67lbwawJRAoGAdgKGbL4TtF6jAuPcknos\n9BfEfey4TKdIme2f36dOw+qGoMk1e8V+LNsLR1dPg0je/6vtsLLYhcMAiiol3G2a\nK9j1mKjq/LGb+OzhniW4VEuEveOorzROl+D5lzamwDt+ZKnX3H+dgm5/EoObuqny\n3ROBD6JE0XZ4C0GiRCsdeH0=\n-----END PRIVATE KEY-----\n",
+  "client_email": "isbocp@matlabocp.iam.gserviceaccount.com",
+  "client_id": "113848337722404108176",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/isbocp%40matlabocp.iam.gserviceaccount.com"
+}
