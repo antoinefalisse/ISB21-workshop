@@ -6,7 +6,7 @@ MATLAB version of the example.
 
 # Run the code:
 - Just run `main.m`.
-- (Mac OS): you might run into security issues related to CasADi. If so, please follow the steps described under *If you want to open an app that hasn’t been notarized or is from an unidentified developer* on [this webpage](https://support.apple.com/en-us/HT202491).
+- (Mac OS): you might run into security issues related to CasADi. If so, please follow the steps described under **If you want to open an app that hasn’t been notarized or is from an unidentified developer** on [this webpage](https://support.apple.com/en-us/HT202491).
 
 
 # A couple of notes:
