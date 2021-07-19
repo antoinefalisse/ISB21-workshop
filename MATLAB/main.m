@@ -172,7 +172,7 @@ opti = casadi.Opti();
 % x(t+1) = x(t) + u(t+1)dt
 %
 % We define the states at N+1 mesh points (starting at k=1).
-% We define the controls at N mesh point (starting at k=2)
+% We define the controls at N mesh points (starting at k=2)
 %
 % k=1   k=2   k=3             k=N   k=N+1
 % |-----|-----|-----|...|-----|-----|
