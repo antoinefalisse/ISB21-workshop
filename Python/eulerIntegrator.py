@@ -5,10 +5,10 @@ error to be nul.
 
 If x is the state value at time t, then xplus is the state value at t+1.
 The backward Euler equation can be formulated as:
-u(t) = (x(t+1) - x(t))/dt, and therefore the error is given by:
-error = (x(t+1) - x(t)) - u(t)dt.
+u(t+1) = (x(t+1) - x(t))/dt, and therefore the error is given by:
+error = (x(t+1) - x(t)) - u(t+1)dt.
 '''
 
-def eulerIntegrator(x,xplus,u,dt):
+def eulerIntegrator(x,xplus,uplus,dt):
 
-    return (xplus - x) - u*dt
+    return (xplus - x) - uplus*dt

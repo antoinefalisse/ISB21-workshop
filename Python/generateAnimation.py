@@ -68,6 +68,6 @@ def generateAnimation(jointPositions_opt, dt, strideLength, nCycles=7):
     anim = animation.FuncAnimation(fig, animate, P[0].shape[0]*nCycles,
                             interval=int(1000/(1/dt)), blit=True, 
                             init_func=init)
-    plt.show()
+    plt.draw()
     
     return anim   

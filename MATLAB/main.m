@@ -49,6 +49,14 @@ w3 = 1; % stance hip
 w4 = 1; % swing hip
 w5 = 1; % swing knee
 
+%% Challenge.
+% If you would like to participate in our challenge, set the variable 
+% challenge below to true. You will get prompted to enter your name, and
+% your name, score, and weight combination will be saved in a google
+% spreadsheet so that we can identify the best combination and winner.
+% More info during the presentation.
+challenge = false;
+
 %% Model: physical parameters and dynamics.
 
 % The model consists of a torso connected to two legs, each of which has 
@@ -159,6 +167,18 @@ time = 0:dt:strideTime;     % Discretized time vector
 opti = casadi.Opti(); 
 
 % Create design variables.
+%
+% Backward Euler scheme:
+% x(t+1) = x(t) + u(t+1)dt
+%
+% We define the states at N+1 mesh points (starting at k=1).
+% We define the controls at N mesh point (starting at k=2)
+%
+% k=1   k=2   k=3             k=N   k=N+1
+% |-----|-----|-----|...|-----|-----|
+%
+% The dynamic contraints and equations of motion are NOT enforced in k=0.
+%
 % States.
 % Segment angles.
 q1 = opti.variable(1,N+1);   q2 = opti.variable(1,N+1);   
@@ -212,6 +232,8 @@ opti.set_initial(q5, q5guess);
 J = 0;
 
 % Loop over mesh points.
+% k=1   k=2   k=3             k=N   k=N+1
+% |-----|-----|-----|...|-----|-----|
 for k=1:N
     % States at mesh point k.
     % Segment angles.
@@ -220,14 +242,6 @@ for k=1:N
     % Segment angular velocities.
     dq1k = dq1(:,k);   dq2k = dq2(:,k);   dq3k = dq3(:,k);
     dq4k = dq4(:,k);   dq5k = dq5(:,k);
-    
-    % Controls at mesh point k.
-    % Segment angular accelerations.
-    ddq1k = ddq1(:,k); ddq2k = ddq2(:,k); ddq3k = ddq3(:,k); 
-    ddq4k = ddq4(:,k); ddq5k = ddq5(:,k);
-    % Joint torques.
-    T1k = T1(:,k);     T2k = T2(:,k);     T3k = T3(:,k);     
-    T4k = T4(:,k);     T5k = T5(:,k);
     
     % States at mesh point k+1.
     % Segment angles.
@@ -238,6 +252,17 @@ for k=1:N
     dq1k_plus = dq1(:,k+1);   dq2k_plus = dq2(:,k+1);   
     dq3k_plus = dq3(:,k+1);   dq4k_plus = dq4(:,k+1);   
     dq5k_plus = dq5(:,k+1);
+    
+    % Controls at mesh point k+1.
+    % (Remember that controls are defined from k=2, so 'mesh point k+1 for
+    % the states correspond to mesh point k for the controls', which is why
+    % we use k and not k+1 here).
+    % Segment angular accelerations.
+    ddq1k_plus = ddq1(:,k); ddq2k_plus = ddq2(:,k); ddq3k_plus = ddq3(:,k); 
+    ddq4k_plus = ddq4(:,k); ddq5k_plus = ddq5(:,k);
+    % Joint torques.
+    T1k_plus = T1(:,k);     T2k_plus = T2(:,k);     T3k_plus = T3(:,k);     
+    T4k_plus = T4(:,k);     T5k_plus = T5(:,k);
        
     % Stack states at mesh points k and k+1.
     Xk = [q1k; q2k; q3k; q4k; q5k; ...
@@ -245,32 +270,37 @@ for k=1:N
     Xk_plus = [q1k_plus; q2k_plus; q3k_plus; q4k_plus; q5k_plus; ...
                dq1k_plus; dq2k_plus; dq3k_plus; dq4k_plus; dq5k_plus];
     
-    % Stack state derivatives.
-    Uk = [dq1k_plus; dq2k_plus; dq3k_plus; dq4k_plus; dq5k_plus; ...
-          ddq1k; ddq2k; ddq3k; ddq4k; ddq5k];
+    % Stack state derivatives at mesh points k+1.
+    Uk_plus = [dq1k_plus; dq2k_plus; dq3k_plus; dq4k_plus; dq5k_plus; ...
+               ddq1k_plus; ddq2k_plus; ddq3k_plus; ddq4k_plus; ddq5k_plus];
     
     % Implicit dynamic constraint errors.
     % The function eulerIntegrator returns the error in the dynamics.
-    % We impose this error to be null (i.e., dq - dqdt = 0; 
-    % ddq - ddqdt = 0). The integration is performed using a backward
-    % Euler scheme (see eulerIntegrator.m)
-    opti.subject_to(eulerIntegrator(Xk, Xk_plus, Uk, dt) == 0);
+    % We impose this error to be null (i.e., dqdt* = dqdt and
+    % ddqdt* = ddqdt, where * indicates the approximated state derivatives
+    % computed based on the integration scheme and no * represents the
+    % actual states or controls. Both should match - collocation).
+    % The integration is performed using a backward Euler scheme
+    % (see eulerIntegrator.m)
+    opti.subject_to(eulerIntegrator(Xk, Xk_plus, Uk_plus, dt) == 0);
        
     % Model constraint errors.
     % We impose this error to be null (i.e., f(q, dq, ddq, T) = 0).
     modelConstraintErrors = f_getModelConstraintErrors(...
         q1k_plus,q2k_plus,q3k_plus,q4k_plus,q5k_plus,...
         dq1k_plus,dq2k_plus,dq3k_plus,dq4k_plus,dq5k_plus,...
-        ddq1k,ddq2k,ddq3k,ddq4k,ddq5k,...
-        T1k,T2k,T3k,T4k,T5k);
+        ddq1k_plus,ddq2k_plus,ddq3k_plus,ddq4k_plus,ddq5k_plus,...
+        T1k_plus,T2k_plus,T3k_plus,T4k_plus,T5k_plus);
     opti.subject_to(modelConstraintErrors == 0);
     
     % Cost function.
     % Minimize the weighted sum of the squared joint torques.
-    J = J + (w1*T1k.^2 + w2*T2k.^2 + w3*T3k.^2 + w4*T4k.^2 + w5*T5k.^2)*dt;
+    J = J + (w1*T1k_plus.^2 + w2*T2k_plus.^2 + w3*T3k_plus.^2 + ...
+        w4*T4k_plus.^2 + w5*T5k_plus.^2)*dt;
     % Penalize (with low weight) segment angular accelerations for
     % regularization purposes.
-    J = J + 1e-1*(ddq1k.^2 + ddq2k.^2 + ddq3k.^2 + ddq4k.^2 + ddq5k.^2)*dt;
+    J = J + 1e-1*(ddq1k_plus.^2 + ddq2k_plus.^2 + ddq3k_plus.^2 + ...
+        ddq4k_plus.^2 + ddq5k_plus.^2)*dt;
     
     % Impose the swing foot to be off the ground.
     % getJointPositions returns 'joint' positions in the x-y plane in the
@@ -284,25 +314,25 @@ for k=1:N
     % other fancy walking patterns!
     switch selected_gait
         case 'no_stance_ankle_torque'
-            opti.subject_to(T1k  == 0.0);            
+            opti.subject_to(T1k_plus  == 0.0);            
         case 'no_stance_knee_torque'
-            opti.subject_to(T2k  == 0.0);            
+            opti.subject_to(T2k_plus  == 0.0);            
         case 'no_hip_torques'
-            opti.subject_to(T3k  == 0.0);
-            opti.subject_to(T4k  == 0.0);            
+            opti.subject_to(T3k_plus  == 0.0);
+            opti.subject_to(T4k_plus  == 0.0);            
         case 'only_stance_ankle_torque'
-            opti.subject_to(T2k  == 0.0);
-            opti.subject_to(T3k  == 0.0);
-            opti.subject_to(T4k  == 0.0);
-            opti.subject_to(T5k  == 0.0);            
+            opti.subject_to(T2k_plus  == 0.0);
+            opti.subject_to(T3k_plus  == 0.0);
+            opti.subject_to(T4k_plus  == 0.0);
+            opti.subject_to(T5k_plus  == 0.0);            
         case 'only_knee_torques'
-            opti.subject_to(T1k  == 0.0);
-            opti.subject_to(T3k  == 0.0);
-            opti.subject_to(T4k  == 0.0);
+            opti.subject_to(T1k_plus  == 0.0);
+            opti.subject_to(T3k_plus  == 0.0);
+            opti.subject_to(T4k_plus  == 0.0);
         case 'only_hip_torques'
-            opti.subject_to(T1k  == 0.0);
-            opti.subject_to(T2k  == 0.0);
-            opti.subject_to(T5k  == 0.0);            
+            opti.subject_to(T1k_plus  == 0.0);
+            opti.subject_to(T2k_plus  == 0.0);
+            opti.subject_to(T5k_plus  == 0.0);            
         case 'crouch_gait'
              % Pelvis Y position below 0.6 m.
             opti.subject_to(jointPositions(4)<0.6);            
@@ -464,13 +494,6 @@ disp(['The maximum torque is ', num2str(max_torque), ' Nm. '...
 % Try to minimize the maximum torque by adjusting the weight of the cost
 % terms (i.e., w1, w2, w3, w4, w5). You can adjust them at the top of the
 % script (lines 46-50).
-% 
-% If you would like to participate in our challenge, set the variable 
-% challenge below to true. You will get prompted to enter your name, and
-% your name, score, and weight combination will be saved in a google
-% spreadsheet so that we can identify the best combination and winner.
-challenge = false;
-
 if challenge == true
     prompt = {'Enter your name:'};
     dlgtitle = 'Input';

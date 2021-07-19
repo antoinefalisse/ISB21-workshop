@@ -4,9 +4,9 @@
 % 
 % If x is the state value at time t, then xplus is the state value at t+1.
 % The backward Euler equation can be formulated as:
-% u(t) = (x(t+1) - x(t))/dt, and therefore the error is given by:
-% error = (x(t+1) - x(t)) - u(t)dt.
+% u(t+1) = (x(t+1) - x(t))/dt, and therefore the error is given by:
+% error = (x(t+1) - x(t)) - u(t+1)dt.
 
-function error = eulerIntegrator(x,xplus,u,dt)
+function error = eulerIntegrator(x,xplus,uplus,dt)
 
-error = (xplus - x) - u*dt;
+error = (xplus - x) - uplus*dt;
