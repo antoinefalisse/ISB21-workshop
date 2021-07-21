@@ -6,7 +6,7 @@ Python version of the example.
 - Open an anaconda prompt.
 - (Recommended) Create a specific conda environment for the workshop: `conda create -n isb2021 python=3.7 pip spyder` (Python > 3.7 will cause issues on Mac).
 	- Activate the environment: `conda activate isb2021`.
-- Navigate to the Python folder of ISB21-workshop: `cd <my_directory>/ISB21-workshop/Python` where `<my_directory>` is the path to the folder where "ISB21-workshop" is located.
+- Navigate to the Python folder of ISB21-workshop: `cd <my_directory>/ISB21-workshop/Python` where `<my_directory>` is the path to the folder where ISB21-workshop is located.
 - Install the required packages: `python -m pip install -r requirements.txt`.
 
 # Run the code:
