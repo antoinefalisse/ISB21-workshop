@@ -12,7 +12,7 @@ Python version of the example.
 # Run the code:
 - Open an anaconda prompt.
 - (Depending on your installlation, see above) Activate the environment: `conda activate isb2021`.
-- Navigate to the Python folder of ISB21-workshop: `cd <my_directory>/ISB21-workshop/Python` where `<my_directory>` is the path to the folder where "ISB21-workshop" is located.
+- Navigate to the Python folder of ISB21-workshop: `cd <my_directory>/ISB21-workshop/Python` where `<my_directory>` is the path to the folder where ISB21-workshop is located.
     - Option 1: You can run the code using the following command line: `python main.py`. Note that you need to close the figures to get the script to keep running. You can edit the scipts in your favorite text editor (e.g., Notepad ++).
     - Option 2: You can run the code in your favorite IDE such as spyder. To launch spyder from the command line, type `spyder` in the anaconda prompt. You can then run `main.py`.
     - Option 3: You can also use the Jupyter notebook version of the code. To open the notebook from the command line, type `ipython notebook main.ipynb` in the anaconda prompt. Note that getting the animation to play properly might require you to install [FFmpeg](https://www.ffmpeg.org/) and have it in your environment path. By default, the animation will not play. 
