@@ -9,7 +9,7 @@ The model we will use consists of 5 segments (tibias, femurs, and torso) and is 
 
 The predictive simulation will be formulated as a trajectory optimization problem and solved using a direct collocation method. The goal of the problem will be to find the model states and controls that satisfy the model dynamics while minimizing the sum of the squared joint torques. You will be invited to test different cost functions, add some constraints, and adjust some variables so as to produce a variety of gait patterns. The aim is to demonstrate the potential of optimal control to address neuro-mechanical research questions.
 
-We have set up a challenge for those who are interested: "Find the cost function that minimizes the maximum peak torque". We will provide you with more information about the cahllenge during the workshop.
+We have set up a challenge for those who are interested: "Find the cost function that minimizes the maximum peak torque". We will provide you with more information about the challenge during the workshop.
 
 The example is available in MATLAB and Python, so feel free to select whatever tool you prefer. You will find the install requirements as well as more info in the READMEs in the MATLAB and Python folders.
 
@@ -20,4 +20,4 @@ If you have any questions, please feel free to contact us:
 - Gil Serrancoli: gil.serrancoli@upc.edu
 - Friedl De Groote: friedl.degroote@kuleuven.be
 
-Credit to Tom van Wouwe for the initial implementation of the code used for this workshop.
+Credit to Tom Van Wouwe for the initial implementation of the code used for this workshop.
