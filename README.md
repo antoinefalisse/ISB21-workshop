@@ -1,13 +1,13 @@
-ISB2021 workshop on optimal control 
-===================================
+ISB-2021 workshop on optimal control in Biomechanics 
+====================================================
 
-Welcome to this workshop on optimal control!
+Welcome to this workshop on optimal control in biomechanics!
 
 The hands-on part of this workshop will demonstrate how to generate a predictive simulation of walking with a planar five-link biped model. The workshop is based on the walking example from the following paper: "An Introduction to Trajectory Optimization: How to Do Your Own Direct Collocation" by Matthew Kelly. (SIAM Review, Vol. 59, No. 4, pp. 849-904).
 
-The model we will use consists of 5 segments (tibias, femurs, and torso) and is driven by ankle, knee, and hip torques. The stance foot is fixed to the ground and the gait pattern is imposed to have no double stance and no flight phase. This deeply simplifies the problem as there is then no need for contact models or different equations for different phases of the gait cycle. 
+We will formulate the predictive simulation as a trajectory optimization problem and solve this problem using direct collocation. The goal will be to find the model states and controls that satisfy the model dynamics and a set of constraints while minimizing the sum of the squared joint torques. You will be invited to test different cost functions, add some constraints, and adjust some variables so as to produce a variety of gait patterns. The aim is to demonstrate the potential of optimal control to address neuro-mechanical research questions.
 
-The predictive simulation will be formulated as a trajectory optimization problem and solved using a direct collocation method. The goal of the problem will be to find the model states and controls that satisfy the model dynamics while minimizing the sum of the squared joint torques. You will be invited to test different cost functions, add some constraints, and adjust some variables so as to produce a variety of gait patterns. The aim is to demonstrate the potential of optimal control to address neuro-mechanical research questions.
+We will use a model with 5 segments (tibias, femurs, and torso) driven by ankle, knee, and hip torques. The stance foot is fixed to the ground and the gait pattern is imposed to have no double stance and no flight phase. This deeply simplifies the problem as there is then no need for contact models or different equations for different phases of the gait cycle. 
 
 We have set up a challenge for those who are interested: "Find the cost function that minimizes the maximum peak torque". We will provide you with more information about the challenge during the workshop.
 
