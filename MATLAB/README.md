@@ -2,7 +2,7 @@ MATLAB version of the example.
 ==============================
 
 # Pre-requisites:
-- Install CasADi, following the instruction [here](https://web.casadi.org/get/).
+- Install CasADi, following the instructions [here](https://web.casadi.org/get/).
 
 # Run the code:
 - Just run `main.m`.
