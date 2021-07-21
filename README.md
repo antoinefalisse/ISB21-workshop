@@ -3,7 +3,7 @@ ISB-2021 workshop on optimal control in Biomechanics
 
 Welcome to this workshop on optimal control in biomechanics!
 
-The hands-on part of this workshop will demonstrate how to generate a predictive simulation of walking with a planar five-link biped model. The workshop is based on the walking example from the following paper: "An Introduction to Trajectory Optimization: How to Do Your Own Direct Collocation" by Matthew Kelly. (SIAM Review, Vol. 59, No. 4, pp. 849-904).
+The hands-on part of this workshop will demonstrate how to generate a predictive simulation of walking with a planar five-link biped model. The workshop is based on the walking example from the following paper: "An Introduction to Trajectory Optimization: How to Do Your Own Direct Collocation" by Matthew Kelly (SIAM Review, Vol. 59, No. 4, pp. 849-904).
 
 We will formulate the predictive simulation as a trajectory optimization problem and solve this problem using direct collocation. The goal will be to find the model states and controls that satisfy the model dynamics and a set of constraints while minimizing the sum of the squared joint torques. You will be invited to test different cost functions, add some constraints, and adjust some variables so as to produce a variety of gait patterns. The aim is to demonstrate the potential of optimal control to address neuro-mechanical research questions.
 
