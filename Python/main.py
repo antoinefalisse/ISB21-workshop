@@ -37,7 +37,17 @@ you run the code. Feel free to adjust the variables below accordingly.
 generate_animation = True
 generate_plots = True
 
-# %% Selection of walking pattern and weight of the cost function terms.
+# %% Challenge.
+'''
+If you would like to participate in our challenge, set the variable 
+challenge below to True. You will get prompted to enter your name, and
+your name, score, and weight combination will be saved in a google
+spreadsheet so that we can identify the best combination and winner.
+More info during the presentation.
+'''
+challenge = False
+
+# %% Selection of walking pattern.
 '''
 Options:
     - nominal
@@ -54,6 +64,7 @@ Options:
 '''
 selected_gait = 'nominal'
 
+# %% Selection of weight of the cost function terms.
 '''
 The cost function minimizes the sum of the squared joint torques. The
 contribution of each joint is weighted with a separate weight factor as
@@ -68,8 +79,7 @@ w3 = 1 # stance hip
 w4 = 1 # swing hip
 w5 = 1 # swing knee
 
-# %% Model: physical parameters and dynamics.
-
+# %% Model: physical parameters.
 '''
 The model consists of a torso connected to two legs, each of which has 
 an upper and a lower link. The stance leg is supporting the weight of the
@@ -127,6 +137,9 @@ d3 = 0.2
 d4 = 0.163
 d5 = 0.128
 # Gravity.
+# Note that on_the_moon and on_mars might be slightly counter-intuitive,
+# since there are constraints that prevent the model to 'fly' as you might
+# expect from someone walking on the moon.
 if selected_gait == 'on_the_moon':
     g = 1.62
 if selected_gait == 'on_mars':
@@ -134,6 +147,7 @@ if selected_gait == 'on_mars':
 else: # on_earth
     g = 9.81
 
+# %% Model: dynamics.
 '''
 For the sake of simplicty, we generated the equations of motion of the
 model for you (see how we proceeded in generateSymbolicFunctions.m). For
@@ -167,7 +181,7 @@ f_getModelConstraintErrors = getModelConstraintErrors(
 
 # %% Trajectory optimization problem formulation.
 '''
-Stride time and length, and mesh size.
+Stride length and time, and mesh size.
 Those are parameters you can play with. If you use a lower mesh size,
 this should increase the accuracy of your simulation, but likely at the
 cost of higher computational time. In practice, if your solution changes
@@ -175,11 +189,10 @@ when lowering the mesh size, it suggests that your current mesh size is
 not low enough. It is advised to do such type of convergence analysis 
 to make sure you do not misinterpret the results.
 '''
-# Time horizon, mesh size, and desired stride length.
-strideTime = 0.8                        # Stride time (s)
 strideLength = 0.5                      # Stride length (m)
-dt = 0.01                               # Mesh size
 
+strideTime = 0.8                        # Stride time (s)
+dt = 0.01                               # Mesh size
 N = int(strideTime/dt)                  # Number of mesh intervals
 time = np.linspace(0., strideTime, N+1) # Discretized time vector
 
@@ -195,6 +208,18 @@ More info here: https://web.casadi.org/docs/#document-opti
 opti = ca.Opti()
 
 # Create design variables.
+#
+# Backward Euler scheme:
+# x(t+1) = x(t) + u(t+1)dt
+#
+# We define the states at N+1 mesh points (starting at k=1).
+# We define the controls at N mesh points (starting at k=2)
+#
+# k=1   k=2   k=3             k=N   k=N+1
+# |-----|-----|-----|...|-----|-----|
+#
+# The dynamic contraints and equations of motion are NOT enforced in k=0.
+#
 # States.
 # Segment angles.
 q1 = opti.variable(1,N+1)
@@ -229,7 +254,7 @@ opti.subject_to(opti.bounded(-np.pi/2, q2, np.pi/2))
 opti.subject_to(opti.bounded(-np.pi/3, q3, np.pi/3))
 opti.subject_to(opti.bounded(-np.pi/2, q4, np.pi/2))
 opti.subject_to(opti.bounded(-np.pi/2, q5, np.pi/2))
-# Set physiological joint limits (no knee hyperflexion).
+# Set physiological joint limits (no knee hyperextension).
 opti.subject_to(opti.bounded(-np.pi, q1 - q2, 0))
 opti.subject_to(opti.bounded(-np.pi, q5 - q4, 0))
 
@@ -261,6 +286,8 @@ opti.set_initial(q5, q5guess)
 J = 0
 
 # Loop over mesh points.
+# k=1   k=2   k=3             k=N   k=N+1
+# |-----|-----|-----|...|-----|-----|
 for k in range(N):
     # States at mesh point k.
     # Segment angles.
@@ -276,20 +303,6 @@ for k in range(N):
     dq4k = dq4[:,k]   
     dq5k = dq5[:,k]
     
-    # Controls at mesh point k.
-    # Segment angular accelerations.
-    ddq1k = ddq1[:,k] 
-    ddq2k = ddq2[:,k] 
-    ddq3k = ddq3[:,k] 
-    ddq4k = ddq4[:,k] 
-    ddq5k = ddq5[:,k]
-    # Joint torques.
-    T1k = T1[:,k]     
-    T2k = T2[:,k]     
-    T3k = T3[:,k]     
-    T4k = T4[:,k]     
-    T5k = T5[:,k]
-    
     # States at mesh point k+1.
     # Segment angles.
     q1k_plus = q1[:,k+1]     
@@ -303,6 +316,23 @@ for k in range(N):
     dq3k_plus = dq3[:,k+1]   
     dq4k_plus = dq4[:,k+1]   
     dq5k_plus = dq5[:,k+1]
+    
+    # Controls at mesh point k+1.
+    # (Remember that controls are defined from k=2, so 'mesh point k+1 for
+    # the states correspond to mesh point k for the controls', which is why
+    # we use k and not k+1 here).
+    # Segment angular accelerations.
+    ddq1k_plus = ddq1[:,k] 
+    ddq2k_plus = ddq2[:,k] 
+    ddq3k_plus = ddq3[:,k] 
+    ddq4k_plus = ddq4[:,k] 
+    ddq5k_plus = ddq5[:,k]
+    # Joint torques.
+    T1k_plus = T1[:,k]     
+    T2k_plus = T2[:,k]     
+    T3k_plus = T3[:,k]     
+    T4k_plus = T4[:,k]     
+    T5k_plus = T5[:,k]
        
     # Stack states at mesh points k and k+1.
     Xk = ca.vertcat(q1k, q2k, q3k, q4k, q5k,   
@@ -311,70 +341,76 @@ for k in range(N):
                dq1k_plus, dq2k_plus, dq3k_plus, dq4k_plus, dq5k_plus)
     
     # Stack state derivatives.
-    Uk = ca.vertcat(dq1k_plus, dq2k_plus, dq3k_plus, dq4k_plus, dq5k_plus, 
-          ddq1k, ddq2k, ddq3k, ddq4k, ddq5k)
+    Uk_plus = ca.vertcat(dq1k_plus, dq2k_plus, dq3k_plus, dq4k_plus, dq5k_plus, 
+          ddq1k_plus, ddq2k_plus, ddq3k_plus, ddq4k_plus, ddq5k_plus)
     
     
-    # Implicit dynamic constraint errors.
+    # Path constraints - dynamic constraints.
     # The function eulerIntegrator returns the error in the dynamics.
-    # We impose this error to be null (i.e., dq - dqdt = 0; 
-    # ddq - ddqdt = 0). The integration is performed using a backward
-    # Euler scheme (see eulerIntegrator.m)
-    opti.subject_to(eulerIntegrator(Xk, Xk_plus, Uk, dt) == 0)
+    # We impose this error to be null (i.e., dqdt* = dqdt and
+    # ddqdt* = ddqdt, where * indicates the approximated state derivatives
+    # computed based on the integration scheme and no * represents the
+    # actual states or controls. Both should match - collocation).
+    # The integration is performed using a backward Euler scheme
+    # (see eulerIntegrator.m)
+    opti.subject_to(eulerIntegrator(Xk, Xk_plus, Uk_plus, dt) == 0)
        
-    # Model constraint errors.
+    # Path constraints - model constraints (implicit skelton dynamics).
     # We impose this error to be null (i.e., f(q, dq, ddq, T) = 0).
     modelConstraintErrors = f_getModelConstraintErrors(
         q1k_plus,q2k_plus,q3k_plus,q4k_plus,q5k_plus,
         dq1k_plus,dq2k_plus,dq3k_plus,dq4k_plus,dq5k_plus,
-        ddq1k,ddq2k,ddq3k,ddq4k,ddq5k,
-        T1k,T2k,T3k,T4k,T5k)
+        ddq1k_plus,ddq2k_plus,ddq3k_plus,ddq4k_plus,ddq5k_plus,
+        T1k_plus,T2k_plus,T3k_plus,T4k_plus,T5k_plus)
     opti.subject_to(ca.vertcat(*modelConstraintErrors) == 0)
     
-    # Cost function.
-    # Minimize the weighted sum of the squared joint torques.
-    J = J + (w1*T1k**2 + w2*T2k**2 + w3*T3k**2 + w4*T4k**2 + w5*T5k**2)*dt
-    # Penalize (with low weight) segment angular accelerations for
-    # regularization purposes.
-    J = J + 1e-1*(ddq1k**2 + ddq2k**2 + ddq3k**2 + ddq4k**2 + ddq5k**2)*dt
-    
-    # Impose the swing foot to be off the ground.
+    # Path constraints - swing foot off the ground.
     # getJointPositions returns 'joint' positions in the x-y plane in the
     # following order: stance knee (X-Y), pelvis (X-Y), head (X-Y), 
     # swing knee (X-Y), and swing foot (X-Y).
     jointPositions = getJointPositions(l1,l2,l3,l4,l5,q1k,q2k,q3k,q4k,q5k)
     opti.subject_to(jointPositions[9] > -1e-4)
     
+    # Path constraints - walking style.
     # We pre-defined a few walking styles you can play with. The added
     # constraints should be self-explanatory. Feel free to try to generate
     # other fancy walking patterns!
     if selected_gait == 'no_stance_ankle_torque':
-        opti.subject_to(T1k  == 0.0)         
+        opti.subject_to(T1k_plus  == 0.0)         
     elif selected_gait == 'no_stance_knee_torque':
-        opti.subject_to(T2k  == 0.0)  
+        opti.subject_to(T2k_plus  == 0.0)  
     elif selected_gait ==  'no_hip_torques':
-        opti.subject_to(T3k  == 0.0)
-        opti.subject_to(T4k  == 0.0)     
+        opti.subject_to(T3k_plus  == 0.0)
+        opti.subject_to(T4k_plus  == 0.0)     
     elif selected_gait ==  'only_stance_ankle_torque':
-        opti.subject_to(T2k  == 0.0)
-        opti.subject_to(T3k  == 0.0)
-        opti.subject_to(T4k  == 0.0)
-        opti.subject_to(T5k  == 0.0)        
+        opti.subject_to(T2k_plus  == 0.0)
+        opti.subject_to(T3k_plus  == 0.0)
+        opti.subject_to(T4k_plus  == 0.0)
+        opti.subject_to(T5k_plus  == 0.0)        
     elif selected_gait ==  'only_knee_torques':
-        opti.subject_to(T1k  == 0.0)
-        opti.subject_to(T3k  == 0.0)
-        opti.subject_to(T4k  == 0.0)
+        opti.subject_to(T1k_plus  == 0.0)
+        opti.subject_to(T3k_plus  == 0.0)
+        opti.subject_to(T4k_plus  == 0.0)
     elif selected_gait ==  'only_hip_torques':
-        opti.subject_to(T1k  == 0.0)
-        opti.subject_to(T2k  == 0.0)
-        opti.subject_to(T5k  == 0.0)    
+        opti.subject_to(T1k_plus  == 0.0)
+        opti.subject_to(T2k_plus  == 0.0)
+        opti.subject_to(T5k_plus  == 0.0)    
     elif selected_gait ==  'crouch_gait':
         opti.subject_to(jointPositions[3]<0.6) # Pelvis below 0.6 m            
     elif selected_gait ==  'swing_foot_circles_around_stance_foot':
         opti.subject_to(            
             jointPositions[8]**2 + jointPositions[9]**2 > 0.45**2)
         
-# Impose periodic gait.
+    # Cost function.
+    # Minimize the weighted sum of the squared joint torques.
+    J = J + (w1*T1k_plus**2 + w2*T2k_plus**2 + w3*T3k_plus**2 + 
+             w4*T4k_plus**2 + w5*T5k_plus**2)*dt
+    # Penalize (with low weight) segment angular accelerations for
+    # regularization purposes.
+    J = J + 1e-1*(ddq1k_plus**2 + ddq2k_plus**2 + ddq3k_plus**2 + 
+                  ddq4k_plus**2 + ddq5k_plus**2)*dt
+        
+# Boundary constraints - periodic gait.
 '''
 "...we will assume that the model transitions directly from single stance
 on one foot to single stance on the other: as soon as the leading foot 
@@ -420,7 +456,7 @@ heelStrike_error = getHeelStrikeError(
     q1_plus,q2_plus,q3_plus,q4_plus,q5_plus)
 opti.subject_to(ca.vertcat(*heelStrike_error) == 0)
         
-# Impose gait speed.
+# Boundary constraints - gait speed.
 '''
 "...what we have chosen here is to prescribe the duration of a single
 step (strideTime) and then have an equality constraint on the stride
@@ -433,9 +469,9 @@ jointPositionsEnd = getJointPositions(l1,l2,l3,l4,l5,
 opti.subject_to(jointPositionsEnd[8] == strideLength)
 opti.subject_to(jointPositionsEnd[9] == 0)
 
+# Boundary constraints - start at 'toe-off' and end at 'heel-strike'.
 '''
-Impose the simulation to start at 'toe-off' and end at 'heel-strike', by
-imposing the swing foot to have a positive y-velocity at 'toe-off' and
+We impose the swing foot to have a positive y-velocity at 'toe-off' and
 a negative y-velocity at 'heel strike'.
 '''
 jointVelocitiesInit = getJointVelocities(
@@ -505,7 +541,7 @@ if generate_plots:
     plt.ylabel('Joint torques [Nm]')
     plt.legend(iter(lineObjects), ('stance ankle','stance knee','stance hip',
                                     'swing hip','swing knee'))
-    plt.show()
+    plt.draw()
     
     # Relative segment angles.
     relJointPos = getRelativeJointAngles(
@@ -521,7 +557,7 @@ if generate_plots:
     plt.ylabel('Relative joint angles [°]')
     plt.legend(iter(lineObjects), ('stance ankle','stance knee','stance hip',
                                     'swing hip','swing knee'))
-    plt.show()
+    plt.draw()
     
     # Relative segment angular velocities.
     relJointVel = getRelativeJointAngularVelocities(
@@ -537,7 +573,7 @@ if generate_plots:
     plt.ylabel('Relative joint angular velocities [°/s]')
     plt.legend(iter(lineObjects), ('stance ankle','stance knee','stance hip',
                                     'swing hip','swing knee'))
-    plt.show()
+    plt.draw()
 
 # %% Maximum torque.
 max_torque=np.max(np.abs(np.array([T1_opt, T2_opt, T3_opt, T4_opt, T5_opt])))
@@ -549,14 +585,8 @@ cost term weights.'.format(max_torque))
 '''
     Try to minimize the maximum torque by adjusting the weight of the cost
     terms (i.e., w1, w2, w3, w4, w5). You can adjust them at the top of the
-    script (lines 65-69).
-    
-    If you would like to participate in our challenge, set the variable 
-    challenge below to True. You will get prompted to enter your name, and
-    your name, score, and weight combination will be saved in a google
-    spreadsheet so that we can identify the best combination and winner.
+    script (lines 76-80).
 '''
-challenge = False
 # Send data to spreadsheet.
 if challenge:
     gc = pygsheets.authorize(service_file='google_tokens.json')
@@ -564,3 +594,6 @@ if challenge:
     wks = sh[0]
     name = input("Enter your name: ")
     wks.append_table(values=[name, max_torque, w1, w2, w3, w4, w5])
+
+# %% Plot graphs
+plt.show()
