@@ -36,11 +36,14 @@ generate_plots = true;
 %   - on_the_moon
 %   - on_mars
 selected_gait = 'nominal';
+% Note that on_the_moon and on_mars might be slightly counter-intuitive,
+% since there are constraints that prevent the model to 'fly' as you might
+% expect from someone walking on the moon.
 
 % The cost function minimizes the sum of the squared joint torques. The
 % contribution of each joint is weighted with a separate weight factor as
 % follows: J = w1*T1^2 + w2*T2^2 + w3*T3^2 + w4*T4^2 + w5*T5^2.
-%
+
 % We expose those weight factors here so that you can easily change them,
 % and see what is the impact on the predicted walking pattern.
 w1 = 1; % stance ankle
@@ -118,7 +121,8 @@ end
 % model for you (see how we proceeded in generateSymbolicFunctions.m). For
 % the simulation to be dynamically consistent, we want those equations of
 % motion to be enforced. In pratice, we do that by having path constraints
-% in the problem formulation.
+% in the problem formulation (implicit formulation of the dynamics).
+%
 % Here, we create a CasADi function that returns the 'model' constraint
 % errors based on the model states (q, dq) and controls (ddq, T). This
 % function is initialized based on the physical parameters of the model,
@@ -255,7 +259,7 @@ for k=1:N
     
     % Controls at mesh point k+1.
     % (Remember that controls are defined from k=2, so 'mesh point k+1 for
-    % the states correspond to mesh point k for the controls', which is why
+    % the states corresponds to element k for the controls', which is why
     % we use k and not k+1 here).
     % Segment angular accelerations.
     ddq1k_plus = ddq1(:,k); ddq2k_plus = ddq2(:,k); ddq3k_plus = ddq3(:,k); 
@@ -273,8 +277,8 @@ for k=1:N
     % Stack state derivatives at mesh points k+1.
     Uk_plus = [dq1k_plus; dq2k_plus; dq3k_plus; dq4k_plus; dq5k_plus; ...
                ddq1k_plus; ddq2k_plus; ddq3k_plus; ddq4k_plus; ddq5k_plus];
-    
-    % Implicit dynamic constraint errors.
+       
+    % Path constraints - dynamic constraints.
     % The function eulerIntegrator returns the error in the dynamics.
     % We impose this error to be null (i.e., dqdt* = dqdt and
     % ddqdt* = ddqdt, where * indicates the approximated state derivatives
@@ -283,8 +287,8 @@ for k=1:N
     % The integration is performed using a backward Euler scheme
     % (see eulerIntegrator.m)
     opti.subject_to(eulerIntegrator(Xk, Xk_plus, Uk_plus, dt) == 0);
-       
-    % Model constraint errors.
+     
+    % Path constraints - model constraints (implicit skelton dynamics).
     % We impose this error to be null (i.e., f(q, dq, ddq, T) = 0).
     modelConstraintErrors = f_getModelConstraintErrors(...
         q1k_plus,q2k_plus,q3k_plus,q4k_plus,q5k_plus,...
@@ -293,22 +297,14 @@ for k=1:N
         T1k_plus,T2k_plus,T3k_plus,T4k_plus,T5k_plus);
     opti.subject_to(modelConstraintErrors == 0);
     
-    % Cost function.
-    % Minimize the weighted sum of the squared joint torques.
-    J = J + (w1*T1k_plus.^2 + w2*T2k_plus.^2 + w3*T3k_plus.^2 + ...
-        w4*T4k_plus.^2 + w5*T5k_plus.^2)*dt;
-    % Penalize (with low weight) segment angular accelerations for
-    % regularization purposes.
-    J = J + 1e-1*(ddq1k_plus.^2 + ddq2k_plus.^2 + ddq3k_plus.^2 + ...
-        ddq4k_plus.^2 + ddq5k_plus.^2)*dt;
-    
-    % Impose the swing foot to be off the ground.
+    % Path constraints - swing foot off the ground.
     % getJointPositions returns 'joint' positions in the x-y plane in the
     % following order: stance knee (X-Y), pelvis (X-Y), head (X-Y), 
     % swing knee (X-Y), and swing foot (X-Y).
     jointPositions = getJointPositions(l1,l2,l3,l4,l5,q1k,q2k,q3k,q4k,q5k);
     opti.subject_to(jointPositions(10) > -1e-4);
     
+    % Path constraints - walking style.
     % We pre-defined a few walking styles you can play with. The added
     % constraints should be self-explanatory. Feel free to try to generate
     % other fancy walking patterns!
@@ -340,9 +336,19 @@ for k=1:N
             opti.subject_to(...
                 jointPositions(9)^2 + jointPositions(10)^2 > 0.45^2);            
     end
+    
+    % Cost function.
+    % Minimize the weighted sum of the squared joint torques.
+    J = J + (w1*T1k_plus.^2 + w2*T2k_plus.^2 + w3*T3k_plus.^2 + ...
+        w4*T4k_plus.^2 + w5*T5k_plus.^2)*dt;
+    % Penalize (with low weight) segment angular accelerations for
+    % regularization purposes.
+    J = J + 1e-1*(ddq1k_plus.^2 + ddq2k_plus.^2 + ddq3k_plus.^2 + ...
+        ddq4k_plus.^2 + ddq5k_plus.^2)*dt;
+    
 end
 
-% Impose periodic gait.
+% Boundary constraints - periodic gait.
 % "...we will assume that the model transitions directly from single stance
 % on one foot to single stance on the other: as soon as the leading foot 
 % strikes the ground, the trailing foot leaves the ground. This transition
@@ -375,7 +381,7 @@ heelStrike_error = getHeelStrikeError(...
     q1_plus,q2_plus,q3_plus,q4_plus,q5_plus);
 opti.subject_to(heelStrike_error == 0);
 
-% Impose gait speed.
+% Boundary constraints - gait speed.
 % "...what we have chosen here is to prescribe the duration of a single
 % step (strideTime) and then have an equality constraint on the stride
 % length (strideLength)...".
@@ -385,8 +391,8 @@ jointPositionsEnd = getJointPositions(l1,l2,l3,l4,l5,...
 % end of the stride.
 opti.subject_to(jointPositionsEnd(9:10,:) == [strideLength; 0]);
 
-% Impose the simulation to start at 'toe-off' and end at 'heel-strike', by
-% imposing the swing foot to have a positive y-velocity at 'toe-off' and
+% Boundary constraints - start at 'toe-off' and end at 'heel-strike'.
+% We impose the swing foot to have a positive y-velocity at 'toe-off' and
 % a negative y-velocity at 'heel strike'.
 jointVelocitiesInit = getJointVelocities(...
     dq1(:,1),dq2(:,1),dq3(:,1),dq4(:,1),dq5(:,1),...
