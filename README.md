@@ -1,5 +1,5 @@
-ISB-2021 workshop on optimal control in Biomechanics 
-====================================================
+ISB-2021: Workshop on optimal control in Biomechanics 
+=====================================================
 
 Welcome to this workshop on optimal control in biomechanics!
 
