@@ -14,7 +14,7 @@ Python version of the example.
 - (Depending on your installlation, see above) Activate the environment: `conda activate isb2021`.
 - Navigate to the Python folder of ISB21-workshop: `cd <my_directory>/ISB21-workshop/Python` where `<my_directory>` is the path to the folder where ISB21-workshop is located.
     - Option 1: You can run the code using the following command line: `python main.py`. You can edit the scripts in your favorite text editor (e.g., Notepad ++).
-    - Option 2: You can run the code in your favorite IDE such as spyder. To launch spyder from the command line, type `spyder` in the anaconda prompt. You can then run `main.py`.
+    - Option 2: You can run the code in your favorite IDE such as spyder. To launch spyder from the command line, type `spyder` in the anaconda prompt. You can then run `main.py`. To get interactive plots and see the animation, change the backend to automatic: Tools > preferences > IPython console > Graphics > Graphics backend > Backend: Automatic.
     - Option 3: You can also use the Jupyter notebook version of the code. To open the notebook from the command line, type `ipython notebook main.ipynb` in the anaconda prompt. Note that getting the animation to play properly might require you to install [FFmpeg](https://www.ffmpeg.org/) and have it in your environment path. By default, the animation will not play. 
 - (Mac OS): you might run into security issues related to CasADi. If so, please follow the steps described under **If you want to open an app that hasn’t been notarized or is from an unidentified developer** on [this webpage](https://support.apple.com/en-us/HT202491).
 
