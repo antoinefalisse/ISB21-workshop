@@ -22,14 +22,6 @@ import casadi.*
 generate_animation = true;
 generate_plots = true;
 
-%% Challenge.
-% If you would like to participate in our challenge, set the variable 
-% challenge below to true. You will get prompted to enter your name, and
-% your name, score, and weight combination will be saved in a google
-% spreadsheet so that we can identify the best combination and winner.
-% More info during the presentation.
-challenge = false;
-
 %% Selection of walking pattern.
 % Options:
 %   - nominal
@@ -496,24 +488,3 @@ max_torque=max(abs([T1_opt T2_opt T3_opt T4_opt T5_opt]));
 
 disp(['The maximum torque is ', num2str(max_torque), ' Nm. '...
       'Try to make it lower by playing with the cost term weights.'])
-
-%% Challenge.
-% Try to minimize the maximum torque by adjusting the weight of the cost
-% terms (i.e., w1, w2, w3, w4, w5). You can adjust them at the top of the
-% script (lines 55-59).
-if challenge == true
-    prompt = {'Enter your name:'};
-    dlgtitle = 'Input';
-    dims = [1 50];
-    definput = {''};
-    name = inputdlg(prompt,dlgtitle,dims,definput);
-    datainput{1}=name{1};
-    datainput{2}=max_torque;
-    datainput{3}=w1;
-    datainput{4}=w2;
-    datainput{5}=w3;
-    datainput{6}=w4;
-    datainput{7}=w5;
-    mat2sheets('1LkQjvf8GK8CTqohY5sC50KnL9j36aRI2fBmuBAsj-Mw', '0', ...
-        [1 1], datainput);
-end

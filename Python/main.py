@@ -37,16 +37,6 @@ you run the code. Feel free to adjust the variables below accordingly.
 generate_animation = True
 generate_plots = True
 
-# %% Challenge.
-'''
-If you would like to participate in our challenge, set the variable 
-challenge below to True. You will get prompted to enter your name, and
-your name, score, and weight combination will be saved in a google
-spreadsheet so that we can identify the best combination and winner.
-More info during the presentation.
-'''
-challenge = False
-
 # %% Selection of walking pattern.
 '''
 Options:
@@ -580,20 +570,6 @@ max_torque=np.max(np.abs(np.array([T1_opt, T2_opt, T3_opt, T4_opt, T5_opt])))
 
 print('The maximum torque is {} Nm. Try to make it lower by playing with the \
 cost term weights.'.format(max_torque))
-    
-# %% Challenge.
-'''
-    Try to minimize the maximum torque by adjusting the weight of the cost
-    terms (i.e., w1, w2, w3, w4, w5). You can adjust them at the top of the
-    script (lines 76-80).
-'''
-# Send data to spreadsheet.
-if challenge:
-    gc = pygsheets.authorize(service_file='google_tokens.json')
-    sh = gc.open('ISB-OptimalControl-Scores')
-    wks = sh[0]
-    name = input("Enter your name: ")
-    wks.append_table(values=[name, max_torque, w1, w2, w3, w4, w5])
 
 # %% Plot graphs
 plt.show()
