@@ -15,29 +15,29 @@ def getModelConstraintErrors(
 
     # CasADi variables.
     # Segment angles.
-    q1_MX = casadi.MX.sym('q1_MX',1)
-    q2_MX = casadi.MX.sym('q2_MX',1)      
-    q3_MX = casadi.MX.sym('q3_MX',1)
-    q4_MX = casadi.MX.sym('q4_MX',1)
-    q5_MX = casadi.MX.sym('q5_MX',1)
+    q1_MX = casadi.SX.sym('q1_MX',1)
+    q2_MX = casadi.SX.sym('q2_MX',1)      
+    q3_MX = casadi.SX.sym('q3_MX',1)
+    q4_MX = casadi.SX.sym('q4_MX',1)
+    q5_MX = casadi.SX.sym('q5_MX',1)
     # Segment angular velocities.
-    dq1_MX = casadi.MX.sym('dq1_MX',1)
-    dq2_MX = casadi.MX.sym('dq2_MX',1) 
-    dq3_MX = casadi.MX.sym('dq3_MX',1)
-    dq4_MX = casadi.MX.sym('dq4_MX',1)
-    dq5_MX = casadi.MX.sym('dq5_MX',1)
+    dq1_MX = casadi.SX.sym('dq1_MX',1)
+    dq2_MX = casadi.SX.sym('dq2_MX',1) 
+    dq3_MX = casadi.SX.sym('dq3_MX',1)
+    dq4_MX = casadi.SX.sym('dq4_MX',1)
+    dq5_MX = casadi.SX.sym('dq5_MX',1)
     # Segment angular accelerations.
-    ddq1_MX = casadi.MX.sym('ddq1_MX',1)
-    ddq2_MX = casadi.MX.sym('ddq2_MX',1)  
-    ddq3_MX = casadi.MX.sym('ddq3_MX',1)
-    ddq4_MX = casadi.MX.sym('ddq4_MX',1)
-    ddq5_MX = casadi.MX.sym('ddq5_MX',1)
+    ddq1_MX = casadi.SX.sym('ddq1_MX',1)
+    ddq2_MX = casadi.SX.sym('ddq2_MX',1)  
+    ddq3_MX = casadi.SX.sym('ddq3_MX',1)
+    ddq4_MX = casadi.SX.sym('ddq4_MX',1)
+    ddq5_MX = casadi.SX.sym('ddq5_MX',1)
     # Joint torques.
-    T1_MX = casadi.MX.sym('T1_MX',1)
-    T2_MX = casadi.MX.sym('T2_MX',1)     
-    T3_MX = casadi.MX.sym('T3_MX',1)
-    T4_MX = casadi.MX.sym('T4_MX',1)
-    T5_MX = casadi.MX.sym('T5_MX',1)
+    T1_MX = casadi.SX.sym('T1_MX',1)
+    T2_MX = casadi.SX.sym('T2_MX',1)     
+    T3_MX = casadi.SX.sym('T3_MX',1)
+    T4_MX = casadi.SX.sym('T4_MX',1)
+    T5_MX = casadi.SX.sym('T5_MX',1)
     
     # The equations of motion were described symbolically.
     constraintErrors = getSystemDynamics(

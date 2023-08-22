@@ -18,7 +18,7 @@ import casadi as ca
 
 import numpy as np
 import matplotlib.pyplot as plt
-import pygsheets
+# import pygsheets
 
 from getModelConstraintErrors import getModelConstraintErrors
 from getHeelStrikeError import getHeelStrikeError
@@ -479,7 +479,7 @@ opti.subject_to(jointVelocitiesEnd[9] < 0)
 opti.minimize(J)
 
 # Create an NLP solver.
-opti.solver('ipopt')
+opti.solver('ipopt', {'expand': True})
 
 # Solve the NLP.
 sol = opti.solve()
